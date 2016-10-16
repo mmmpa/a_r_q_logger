@@ -1,4 +1,5 @@
 require 'rails_helper'
+require 'a_r_q_logger'
 
 RSpec.describe TestModel, type: :model do
   it do

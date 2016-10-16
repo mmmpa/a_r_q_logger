@@ -7,9 +7,6 @@ require "action_mailer/railtie"
 require "sprockets/railtie"
 # require "rails/test_unit/railtie"
 
-Bundler.require(*Rails.groups)
-require "a_r_q_logger"
-
 module Dummy
 	class Application < Rails::Application
 		config.generators do |g|
