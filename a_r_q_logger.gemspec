@@ -10,14 +10,14 @@ Gem::Specification.new do |spec|
   spec.authors     = ["mmmpa"]
   spec.email       = ["mmmpa.mmmpa@gmail.com"]
   spec.homepage    = "http://mmmpa.net"
-  spec.summary     = "TODO: Summary of ARQLogger."
-  spec.description = "TODO: Description of ARQLogger."
+  spec.summary     = "count of querying"
+  spec.description = "count of querying"
 
   spec.files         = `git ls-files`.split("\n")
   spec.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
   spec.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   spec.require_paths = ["lib"]
-  spec.add_dependency "rails", "~> 4.0"
+  spec.add_dependency "rails", ">= 4.0"
 
   spec.add_development_dependency "bundler", "~> 1.10"
   spec.add_development_dependency "rake", "~> 10.0"
