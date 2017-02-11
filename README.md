@@ -20,9 +20,21 @@ require 'a_r_q_logger'
 
 # Usage
 
+## Preparation
+
+ARQLogger's logging depends on `ActiveRecord::LogSubscriber`'s logging, so it must work to take log of `ActiveRecord`.
+
+On Ruby on Rails it works by default, but not on Rails it must be made work manually.
+
+```ruby
+require 'active_record'
+
+ActiveRecord::Base.logger = Logger.new(Tempfile.new(''))
+```
+
 ## In tests
 
-## count queries
+## Counting queries
 
 ```ruby
 before :all do
@@ -44,7 +56,7 @@ it do
 end
 ```
 
-## count instantiating
+## Counting instantiating
 
 ```ruby
 before :all do

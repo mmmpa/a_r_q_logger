@@ -26,4 +26,3 @@ elsif defined?(::Rails::Railtie)
     initializer('add pass method') { ARQLogger::Initializer.patch }
   end
 end
-

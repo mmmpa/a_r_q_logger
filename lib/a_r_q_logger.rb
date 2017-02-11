@@ -35,14 +35,14 @@ module ARQLogger
       mon.synchronize do
         raise CannotNestedStarting if store[key]
 
-        store[key] = Log.new(start_at: Time.now.to_i)
+        store[key] = Log.new
       end
     end
 
     def finish
       mon.synchronize do
         store.delete(key).tap do |result|
-          result.finish(Time.now.to_i)
+          result.finish
         end
       end
     end
@@ -55,14 +55,14 @@ module ARQLogger
   class Log
     attr_accessor :start_at, :queries, :duration, :instances
 
-    def initialize(start_at:)
+    def initialize(start_at: Time.now.to_i)
       @start_at = start_at
 
       @queries = []
       @instances = 0
     end
 
-    def finish(end_at)
+    def finish(end_at: Time.now.to_i)
       @duration = end_at - start_at
     end
 
