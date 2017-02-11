@@ -10,6 +10,10 @@ module ARQLogger
             real_sql(event)
           end
         end
+
+        class ActiveRecord::Base
+          after_initialize ->{ ARQLogger.instantiate }
+        end
       EOS
     end
   end

@@ -22,6 +22,8 @@ require 'a_r_q_logger'
 
 ## In tests
 
+## count queries
+
 ```
 before :all do
   10.times {
@@ -41,6 +43,29 @@ it do
   }.count).to eq(11)
 end
 ```
+
+## count instantiating
+
+```
+before :all do
+  10.times {
+    TestChildModel.create!(test_model: TestModel.create!, name: SecureRandom.hex(4))
+  }
+end
+
+it do
+  expect(ARQLogger.log {
+    TestModel.includes(:test_child_models).load
+  }.instances).to eq(20)
+end
+
+it do
+  expect(ARQLogger.log {
+    TestModel.joins(:test_child_models).select('test_child_models.id as as_id').load
+  }.instances).to eq(10)
+end
+```
+
 
 ## In Anywhere
 
