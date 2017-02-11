@@ -3,12 +3,11 @@ require 'supports/schema'
 require 'models/test_child_model'
 require 'models/test_model'
 require 'tempfile'
+require 'securerandom'
 
 ActiveRecord::Base.logger = Logger.new(Tempfile.new(''))
 
-
 require 'a_r_q_logger'
-
 
 RSpec.describe TestModel, type: :model do
   it do
@@ -26,6 +25,44 @@ RSpec.describe TestModel, type: :model do
       TestModel.create!
       TestModel.create!
     }.count).to eq(2)
+  end
+
+  context 'in multi thread' do
+    before do
+      TestModel.destroy_all
+    end
+
+    after do
+      TestModel.destroy_all
+    end
+
+    it do
+      threads = []
+
+      wrap = ARQLogger.log {
+        10.times do
+          threads.push(Thread.start do
+            ActiveRecord::Base.connection_pool.with_connection do
+              sleep rand(0..2) / 10
+              re = ARQLogger.log {
+                TestModel.create!
+                sleep rand(0..2) / 10
+                TestModel.create!
+                sleep rand(0..2) / 10
+                TestModel.create!
+              }
+              expect(re.count).to eq(3)
+              expect(re.instances).to eq(3)
+            end
+          end)
+        end
+      }
+
+      threads.each { |t| t.join }
+
+      expect(wrap.count).to eq(0)
+      expect(TestModel.count).to eq(30)
+    end
   end
 
   context 'with associations' do

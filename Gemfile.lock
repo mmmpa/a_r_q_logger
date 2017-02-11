@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    a_r_q_logger (0.0.6)
+    a_r_q_logger (0.0.8)
       activerecord (>= 4.2)
 
 GEM

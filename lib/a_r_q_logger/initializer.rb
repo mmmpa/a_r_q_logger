@@ -6,7 +6,7 @@ module ARQLogger
           alias_method :real_sql, :sql
 
           def sql(event)
-            ARQLogger.pass(event)
+            ARQLogger.sql(event)
             real_sql(event)
           end
         end
@@ -21,8 +21,9 @@ end
 
 if defined?(ActiveRecord::LogSubscriber)
   ARQLogger::Initializer.patch
-else
+elsif defined?(::Rails::Railtie)
   class ARQLoggerApplicationProxy < ::Rails::Railtie
     initializer('add pass method') { ARQLogger::Initializer.patch }
   end
 end
+

@@ -1,20 +1,26 @@
 require 'a_r_q_logger/initializer'
+require 'monitor'
+
+# Thread.current.object_id
 
 module ARQLogger
-  class << self
-    attr_accessor :store, :instantiating
+  cattr_accessor :store, :mon
 
-    def pass(event)
+  self.store = {}
+  self.mon = Monitor.new
+
+  class << self
+    def sql(event)
       return unless store
 
       payload = event.payload
       if payload[:name] && !ActiveRecord::LogSubscriber::IGNORE_PAYLOAD_NAMES.include?(payload[:name])
-        store.push(event.duration)
+        mon.synchronize { store[key].push(event.duration) }
       end
     end
 
     def instantiate
-      self.instantiating += 1 if instantiating
+      mon.synchronize { store[key] && store[key].instantiate }
     end
 
     def log(&block)
@@ -26,28 +32,57 @@ module ARQLogger
     private
 
     def start
-      self.store = []
-      self.instantiating = 0
+      mon.synchronize do
+        raise CannotNestedStarting if store[key]
+
+        store[key] = Log.new(start_at: Time.now.to_i)
+      end
     end
 
     def finish
-      logged = store
-      instances = instantiating
+      mon.synchronize do
+        store.delete(key).tap do |result|
+          result.finish(Time.now.to_i)
+        end
+      end
+    end
 
-      self.store = nil
-      self.instantiating = nil
-
-      Result.new(
-        count: logged.size,
-        msec: logged.sum.round(1),
-        instances: instances
-      )
+    def key
+      Thread.current.object_id
     end
   end
 
-  class Result < Struct.new(:count, :msec, :instances)
-    def initialize(count:, msec:, instances:)
-      super(count, msec, instances)
+  class Log
+    attr_accessor :start_at, :queries, :duration, :instances
+
+    def initialize(start_at:)
+      @start_at = start_at
+
+      @queries = []
+      @instances = 0
     end
+
+    def finish(end_at)
+      @duration = end_at - start_at
+    end
+
+    def instantiate
+      @instances += 1
+    end
+
+    def push(query)
+      @queries.push(query)
+    end
+
+    def count
+      @queries.size
+    end
+
+    def queries_time
+      @queries.sum.round(1)
+    end
+  end
+
+  class CannotNestedStarting < StandardError
   end
 end
