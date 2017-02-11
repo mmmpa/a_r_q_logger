@@ -6,13 +6,13 @@ This gem logs count of query and duration of only querying.
 
 # Installation
 
-```
+```ruby
 gem 'a_r_q_logger'
 ```
 
 or
 
-```
+```ruby
 gem 'a_r_q_logger', require: false
 
 require 'a_r_q_logger'
@@ -24,7 +24,7 @@ require 'a_r_q_logger'
 
 ## count queries
 
-```
+```ruby
 before :all do
   10.times {
     TestChildModel.create!(test_model: TestModel.create!, name: SecureRandom.hex(4))
@@ -46,7 +46,7 @@ end
 
 ## count instantiating
 
-```
+```ruby
 before :all do
   10.times {
     TestChildModel.create!(test_model: TestModel.create!, name: SecureRandom.hex(4))
